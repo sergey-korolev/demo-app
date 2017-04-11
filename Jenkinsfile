@@ -1,7 +1,6 @@
 import jenkins.model.*
 
 def label = env.JOB_NAME.replaceAll('\\s','_')
-//.replaceAll('\\/','_')
 
 node('swarm && deployed=${label} || swarm && !deployed*' ) {
   try {
@@ -14,7 +13,6 @@ node('swarm && deployed=${label} || swarm && !deployed*' ) {
         nodeName = slave.getNodeName()
  
         if (nodeName == env.NODE_NAME && !oldLabelName.contains("deployed=${label}")) {
-            //newLabelName = oldLabelName + " " + "demo-app/master"
             newLabelName = "swarm" + " " + "deployed=${label}"
             slave.setLabelString(newLabelName)
         }
