@@ -2,7 +2,7 @@ import jenkins.model.*
 
 def label = env.JOB_NAME.replaceAll('\\s','_')
 
-node('swarm && deployed=${label} || swarm && !deployed*' ) {
+node('swarm && deployed=${label} || swarm && !deployed' ) {
   try {
     slackSend (color: '#FFFF00', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
 
@@ -13,7 +13,7 @@ node('swarm && deployed=${label} || swarm && !deployed*' ) {
         nodeName = slave.getNodeName()
  
         if (nodeName == env.NODE_NAME && !oldLabelName.contains("deployed=${label}")) {
-            newLabelName = "swarm" + " " + "deployed=${label}"
+            newLabelName = "swarm" + " " + "deployed" + " " + "deployed=${label}"
             slave.setLabelString(newLabelName)
         }
 
