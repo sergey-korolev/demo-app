@@ -17,7 +17,7 @@ node('swarm && deployed=${label} || swarm && !deployed*' ) {
             slave.setLabelString(newLabelName)
         }
 
-        if (nodeName != env.NODE_NAME && oldLabelName.contains("deployed=${label}") && oldLabelName.contains('swarm') {
+        if (nodeName != env.NODE_NAME && oldLabelName.contains("deployed=${label}") && oldLabelName.contains('swarm')) {
             slave.setLabelString('swarm')
             // cleanup step
             sh 'DOCKER_HOST=tcp://localhost:4243 docker-compose kill ; docker-compose rm'
