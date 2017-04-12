@@ -1,5 +1,7 @@
 import jenkins.model.*
 
+//branch4
+
 def label = env.JOB_NAME.replaceAll('\\s','_')
 
 node("(swarm && deployed=${label}) || (swarm && !deployed)" ) {
