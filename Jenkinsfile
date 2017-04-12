@@ -23,11 +23,13 @@ node("(swarm && deployed=${label}) || (swarm && !deployed)" ) {
         
     }
 
-    slackSend (color: '#FFFF00', message: "BINDED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' on node ${env.NODE_NAME})")
+    node_ip  = sh( script: 'hostname -I | grep -o "[0-9]\\{1,3\\}\\.[0-9]\\{1,3\\}\\.[0-9]\\{1,3\\}\\.[0-9]\\{1,3\\}" | head -1', returnStdout: true).trim()
+    work_dir = sh( script: 'pwd', returnStdout: true).trim()
+    sh 'rm -f /home/jenkins/deploy ; ln -s ${work_dir} /home/jenkins/deploy'
+    sh 'DOCKER_HOST=tcp://localhost:4243 docker-compose kill ; docker-compose rm ; docker-compose up -d'
+    slackSend (color: '#FFFF00', message: "BINDED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' on node ${env.NODE_NAME}(${node_ip}):(/home/jenkins/deploy)")
 
     // build and test steps
-    sh 'DOCKER_HOST=tcp://localhost:4243 docker-compose kill ; docker-compose rm ; docker-compose up -d'
-
     slackSend (color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
 
   } catch (e) {
