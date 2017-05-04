@@ -14,7 +14,7 @@ node("(swarm && deployed=${label}) || (swarm && !deployed)" ) {
         oldLabelName = slave.getLabelString()
         nodeName = slave.getNodeName()
 
-        if (nodeName == env.NODE_NAME && oldLabelName.contains("deployed ") && !oldLabelName.contains("deployed=${label}")) {
+        if (nodeName == env.NODE_NAME && oldLabelName.contains('deployed ') && !oldLabelName.contains("deployed=${label}")) {
 	    currentBuild.result = "FAILED"
 	    slackSend (color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} : Provided node already binded")
 	    error "Job '${env.JOB_NAME}' : Provided node already binded, please try again"
