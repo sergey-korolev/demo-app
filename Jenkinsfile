@@ -1,6 +1,6 @@
 import jenkins.model.*
 
-//test PR new_feature
+//test PR new_feature today
 
 def label = env.JOB_NAME.replaceAll('\\s','_')
 
