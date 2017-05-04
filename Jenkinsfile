@@ -5,6 +5,9 @@ import jenkins.model.*
 def label = env.JOB_NAME.replaceAll('\\s','_')
 
 node("(swarm && deployed=${label}) || (swarm && !deployed)" ) {
+
+sleep time: 1, unit: 'MINUTES'
+
   try {
     slackSend (color: '#FFFF00', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
 
@@ -47,5 +50,7 @@ node("(swarm && deployed=${label}) || (swarm && !deployed)" ) {
     slackSend (color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
     throw e
   }
+
+sleep time: 1, unit: 'MINUTES'
 
 }
