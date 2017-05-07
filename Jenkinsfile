@@ -1,13 +1,10 @@
 import jenkins.model.*
 
 // branch1 test
-//test PR new_feature
 
 def label = env.JOB_NAME.replaceAll('\\s','_')
 
 node("(swarm && deployed=${label}) || (swarm && !deployed)" ) {
-
-sleep time: 1, unit: 'MINUTES'
 
   try {
     slackSend (color: '#FFFF00', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
@@ -15,8 +12,8 @@ sleep time: 1, unit: 'MINUTES'
     checkout scm
 
     for (slave in jenkins.model.Jenkins.instance.slaves) {
-        oldLabelName = slave.getLabelString()
-        nodeName = slave.getNodeName()
+        def oldLabelName = slave.getLabelString()
+        def nodeName = slave.getNodeName()
 
         if (nodeName == env.NODE_NAME && oldLabelName.contains('deployed ') && !oldLabelName.contains("deployed=${label}")) {
 	    currentBuild.result = "FAILED"
@@ -34,16 +31,19 @@ sleep time: 1, unit: 'MINUTES'
             slave.setLabelString('swarm')
         }
         
+        oldLabelName = null
+        nodeName = null
+        
     }
 
-    node_ip  = sh( script: 'hostname -I | grep -o "[0-9]\\{1,3\\}\\.[0-9]\\{1,3\\}\\.[0-9]\\{1,3\\}\\.[0-9]\\{1,3\\}" | head -1', returnStdout: true).trim()
-    work_dir = sh( script: 'pwd', returnStdout: true).trim()
-    //sh 'rm -f /home/jenkins/deploy ; ln -s /home/jenkins/deploy ${work_dir}'
-    //sh 'DOCKER_HOST=tcp://localhost:4243 docker kill $(DOCKER_HOST=tcp://localhost:4243 docker ps --format "{{.ID}}") ; DOCKER_HOST=tcp://localhost:4243 docker rm $(DOCKER_HOST=tcp://localhost:4243 docker ps --all --format "{{.ID}}")'
-    sh 'DOCKER_HOST=tcp://localhost:4243 docker-compose kill ; docker-compose rm ; docker-compose up -d'
+    def node_ip  = sh( script: 'hostname -I | grep -o "[0-9]\\{1,3\\}\\.[0-9]\\{1,3\\}\\.[0-9]\\{1,3\\}\\.[0-9]\\{1,3\\}" | head -1', returnStdout: true).trim()
+    def work_dir = sh( script: 'pwd', returnStdout: true).trim()
     slackSend (color: '#FFFF00', message: "BINDED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' on node ${env.NODE_NAME}(${node_ip}):(${work_dir})")
+    node_ip  = null
+    work_dir = null
 
     // build and test steps
+    sh script: 'DOCKER_HOST=tcp://localhost:4243 docker-compose kill ; docker-compose rm -f; docker-compose up -d'
     slackSend (color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
 
   } catch (e) {
@@ -52,6 +52,5 @@ sleep time: 1, unit: 'MINUTES'
     throw e
   }
 
-sleep time: 1, unit: 'MINUTES'
-
 }
+
